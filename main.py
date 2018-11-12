@@ -18,9 +18,23 @@ mysql = MySQL(app)
 def home():
     return render_template('home.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/accomplishment')
 def accomplishment():
-    return render_template('accomplishment.html')
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from AccItems where author = %s", [session['username']])
+    AccItems = cur.fetchall()
+
+    if result > 0:
+        return render_template('accomplishment.html', AccItems=AccItems)
+    else:
+        msg = 'No item found'
+        return render_template('accomplishment.html', msg=msg)
+    cur.close()
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -47,7 +61,7 @@ def login():
     
                 ## flash message showing logged in
                 flash('You are now logged in')
-                return redirect(url_for('register'))
+                return redirect(url_for('accomplishment'))
             else:
                 error = 'Password does not match'
                 return render_template('login.html', error=error)
@@ -107,6 +121,78 @@ def logout():
     session.clear()
     flash('you are now logged out')
     return redirect(url_for('login'))
+
+class AccItemForm(Form):
+    item = StringField('Item', [validators.Length(min=1, max=200)])
+    AccType = StringField('Type_of_Item', [validators.Length(max=200)])
+    description = TextAreaField('Description', [validators.Length(max=3000)])
+
+# add item in accomplishment page
+@app.route('/add_acc_item', methods = ['GET','POST'])
+@is_logged_in
+def add_acc_item():
+    form = AccItemForm(request.form)
+    if request.method == 'POST' and form.validate():
+        item = form.item.data
+        AccType = form.AccType.data
+        description = form.description.data
+
+        # sql cursor
+        cur = mysql.connection.cursor()
+        cur.execute('insert into AccItems(item, type, description, author) values(%s, %s, %s, %s)', (item, AccType, description, session['username']))
+        mysql.connection.commit()
+        cur.close()
+        flash('Item added', 'success')
+        return redirect(url_for('accomplishment'))
+    return render_template('add_acc_item.html', form=form)
+
+# edit items in accomplishment tab
+@app.route('/edit_acc/<string:id>', methods=['GET','POST'])
+@is_logged_in
+def edit_acc(id):
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from AccItems where id = %s", [id])
+    AccItem = cur.fetchone()
+    cur.close()
+
+    # get form
+    form = AccItemForm(request.form)
+    form.item.data = AccItem['item']
+    form.AccType.data = AccItem['type']
+    form.description.data = AccItem['description']
+
+    if request.method == 'POST' and form.validate(): 
+        item = request.form['item']
+        AccType = request.form['AccType']
+        description = request.form['description']
+
+        # sql cursor
+        cur = mysql.connection.cursor()
+        app.logger.info(item)
+        cur.execute('update AccItems set item = %s, type = %s, description = %s where id = %s', (item, AccType, description, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('Item updated', 'success')
+        return redirect(url_for('accomplishment'))
+    return render_template('edit_acc.html', form=form)
+
+# Delete accomplishment
+@app.route('/delete_acc/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_acc(id):
+    # sql cursor
+    cur = mysql.connection.cursor()
+    cur.execute("delete from AccItems where id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+
+    flash('Item deleted', 'Success')
+
+    return redirect(url_for('accomplishment'))
+
+
+
 
 if __name__=='__main__':
     app.secret_key='secret123'

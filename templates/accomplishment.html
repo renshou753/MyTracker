@@ -28,15 +28,14 @@
           <div class="sidebar-sticky">
 
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-              <span>Tracked items</span>
+              <span>Welcome</span>
               <a class="d-flex align-items-center text-muted" href="#">
-                <span data-feather="plus-circle"></span>
               </a>
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Current month
+                <a class="nav-link" href="/accomplishment">
+		Dashboard <span class="sr-only">(current)</span>
                 </a>
               </li>
             </ul>
@@ -46,15 +45,23 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <div class="btn-toolbar mb-2 mb-md-0">
-              <button class="btn btn-sm btn-outline-secondary">
-		<span data-feather="file-text"></span>      
-		Export
-	      </button>
-	      
+	     
+	      <a class='btn btn-success' href="/add_acc_item"> Add item</a>
+
               <button class="btn btn-sm btn-outline-secondary dropdown-toggle">
                 <span data-feather="calendar"></span>
                 This Month
               </button>
+
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                <span data-feather="layers"></span>
+                Filter
+              </button>
+
+              <button class="btn btn-sm btn-outline-secondary">
+		<span data-feather="file-text"></span>      
+		Export
+	      </button>
             </div>
           </div>
 
@@ -63,28 +70,27 @@
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
+                  <th>Date</th>
+                  <th>Event</th>
+                  <th>Type</th>
                 </tr>
               </thead>
               <tbody>
+		{% for AccItem in AccItems %}
                 <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
+		  <td>{{AccItem.added_date}}</td>
+		  <td>{{AccItem.item}}</td>
+		  <td>{{AccItem.type}}</td>
+		  <td><a href="edit_acc/{{AccItem.id}}" class="btn btn-default pull-right">Edit</a></td>
+		  <td>
+		     <form action="{{url_for('delete_acc', id=AccItem.id)}}" method="POST">
+			     <input type="hidden" name="_method" value="DELETE">
+			     <input type="submit" value="Delete" class="btn btn-danger">
+		     </form>
+
+	          </td>
                 </tr>
-                <tr>
-                  <td>1,002</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
-                </tr>
+		{% endfor %}
               </tbody>
             </table>
           </div>
