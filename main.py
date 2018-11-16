@@ -22,7 +22,19 @@ def home():
 def about():
     return render_template('about.html')
 
+# check if logged in
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kargs):
+        if 'logged_in' in session:
+            return f(*args, **kargs)
+        else:
+            flash('please log in first')
+            return redirect(url_for('login'))
+    return wrap
+
 @app.route('/accomplishment')
+@is_logged_in
 def accomplishment():
     # sql cursor
     cur = mysql.connection.cursor()
@@ -52,20 +64,20 @@ def login():
             # get hash password
             data = cur.fetchone()
             password = data['password']
-    
+
             # compare password
             if sha256_crypt.verify(password_candidate, password):
                 # matched
                 session['logged_in'] = True
                 session['username'] = username
-    
+
                 ## flash message showing logged in
                 flash('You are now logged in')
                 return redirect(url_for('accomplishment'))
             else:
                 error = 'Password does not match'
                 return render_template('login.html', error=error)
-    
+
             cur.close()
         else:
             error = 'Username not found'
@@ -93,26 +105,19 @@ def register():
 
         ## sql cursor
         cur = mysql.connection.cursor()
-        cur.execute("insert into users(name, email, username, password) values(%s, %s, %s, %s)", (name, email, username, password))
-        mysql.connection.commit()
-        cur.close()
-        
-        ## flash message to indicate user has logged in
-        flash("you have logged in")
-        
-        return redirect(url_for('login'))
-    return render_template('accomplishment.html', form=form)
+        try:
+            cur.execute("insert into users(name, email, username, password) values(%s, %s, %s, %s)", (name, email, username, password))
+            mysql.connection.commit()
+            ## flash message to indicate user has logged in
+            flash("your account was created, please log in")
+        except:
+            flash("your username or email already exist")
+            return redirect(url_for('register'))
+        finally:
+            cur.close()
 
-# check if logged in
-def is_logged_in(f):
-    @wraps(f)
-    def wrap(*args, **kargs):
-        if 'logged_in' in session:
-            return f(*args, **kargs)
-        else:
-            flash('please log in first')
-            return redirect(url_for('login'))
-    return wrap
+        return redirect(url_for('login'))
+    return render_template('register.html', form=form)
 
 # loutout
 @app.route('/logout')
@@ -162,7 +167,7 @@ def edit_acc(id):
     form.AccType.data = AccItem['type']
     form.description.data = AccItem['description']
 
-    if request.method == 'POST' and form.validate(): 
+    if request.method == 'POST' and form.validate():
         item = request.form['item']
         AccType = request.form['AccType']
         description = request.form['description']
