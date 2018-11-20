@@ -35,17 +35,12 @@
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link" href="/accomplishment">
+                <a class="nav-link" href="/ToDoBoard">
 		Dashboard <span class="sr-only">(current)</span></a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/viewByType">
-		AggregateByCategory
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/viewByMonth">
-		AggregateByMonth
+                <a class="nav-link" href="/Gantt">
+		Gantt Chart
                 </a>
               </li>
             </ul>
@@ -56,7 +51,7 @@
           <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <div class="btn-toolbar mb-2 mb-md-0">
 	     
-	      <a class='btn btn-success' href="/add_acc_item"> Add item</a>
+	      <a class='btn btn-success' href="/add_todo_item"> Add item</a>
 
           </div>
 
@@ -65,15 +60,15 @@
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th>Date</th>
+                  <th>Target Deadline</th>
                   <th>Event</th>
                   <th>Category
 		  
                   <select id='filterType' style='display:inline-block' onchange='filterType()'>
                       <option disabled selected>Select</option>
 	              <option value='all'>All</option>
-	               {% for AccItem in AccItems %}
-	              <option value={{AccItem.type}}>{{AccItem.type}}</option>
+	               {% for ToDoItem in ToDoItems %}
+	              <option value={{ToDoItem.type}}>{{ToDoItem.type}}</option>
                        {% endfor %}
                   </select>
 
@@ -81,14 +76,14 @@
                 </tr>
               </thead>
               <tbody>
-		{% for AccItem in AccItems %}
+		{% for ToDoItem in ToDoItems %}
                 <tr class='content'>
-		  <td>{{AccItem.added_date}}</td>
-		  <td>{{AccItem.item}}</td>
-		  <td>{{AccItem.type}}</td>
-		  <td><a href="edit_acc/{{AccItem.id}}" class="btn btn-default pull-right">Edit</a></td>
+		  <td>{{ToDoItem.target_date}}</td>
+		  <td>{{ToDoItem.item}}</td>
+		  <td>{{ToDoItem.type}}</td>
+		  <td><a href="edit_todo/{{ToDoItem.id}}" class="btn btn-default pull-right">Edit</a></td>
 		  <td>
-		     <form action="{{url_for('delete_acc', id=AccItem.id)}}" method="POST">
+		     <form action="{{url_for('delete_todo', id=ToDoItem.id)}}" method="POST">
 			     <input type="hidden" name="_method" value="DELETE">
 			     <input type="submit" value="Delete" class="btn btn-danger">
 		     </form>

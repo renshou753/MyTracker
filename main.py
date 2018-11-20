@@ -1,6 +1,6 @@
 from flask import Flask, url_for, flash, redirect, session, request, logging, render_template
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, DateField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -48,6 +48,35 @@ def accomplishment():
         return render_template('accomplishment.html', msg=msg)
     cur.close()
 
+@app.route('/viewByType')
+@is_logged_in
+def ViewByType():
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from AccItems where author = %s", [session['username']])
+    AccItems = cur.fetchall()
+
+    if result > 0:
+        return render_template('viewByType.html', AccItems=AccItems)
+    else:
+        msg = 'No item found'
+        return render_template('viewByType.html', msg=msg)
+    cur.close()
+
+@app.route('/viewByMonth')
+@is_logged_in
+def ViewByMonth():
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select id, item, type, extract(year_month from added_date) as added_date from AccItems where author = %s", [session['username']])
+    AccItems = cur.fetchall()
+
+    if result > 0:
+        return render_template('viewByMonth.html', AccItems=AccItems)
+    else:
+        msg = 'No item found'
+        return render_template('viewByMonth.html', msg=msg)
+    cur.close()
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -129,7 +158,7 @@ def logout():
 
 class AccItemForm(Form):
     item = StringField('Item', [validators.Length(min=1, max=200)])
-    AccType = StringField('Type_of_Item', [validators.Length(max=200)])
+    AccType = StringField('Categorization', [validators.Length(max=200)])
     description = TextAreaField('Description', [validators.Length(max=3000)])
 
 # add item in accomplishment page
@@ -197,7 +226,93 @@ def delete_acc(id):
     return redirect(url_for('accomplishment'))
 
 
+class ToDoItemForm(Form):
+    item = StringField('Item', [validators.Length(min=1, max=200)])
+    Target_Date = DateField('Target Deadline', format='%Y-%m-%d')
+    Type = StringField('Categorization', [validators.Length(max=200)])
+    description = TextAreaField('Description', [validators.Length(max=3000)])
 
+# add item in accomplishment page
+@app.route('/add_todo_item', methods = ['GET','POST'])
+@is_logged_in
+def add_todo_item():
+    form = ToDoItemForm(request.form)
+    if request.method == 'POST' and form.validate():
+        item = form.item.data
+        TargetDate = form.Target_Date.data
+        Type = form.Type.data
+        description = form.description.data
+
+        # sql cursor
+        cur = mysql.connection.cursor()
+        cur.execute('insert into ToDoItems(item, type, description, target_date, author) values(%s, %s, %s, %s, %s)', (item, Type, description, TargetDate, session['username']))
+        mysql.connection.commit()
+        cur.close()
+        flash('Item added', 'success')
+        return redirect(url_for('ToDoBoard'))
+    return render_template('add_todo_item.html', form=form)
+
+# edit items in to do tab
+@app.route('/edit_todo/<string:id>', methods=['GET','POST'])
+@is_logged_in
+def edit_todo(id):
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from ToDoItems where id = %s", [id])
+    ToDoItem = cur.fetchone()
+    cur.close()
+
+    # get form
+    form = ToDoItemForm(request.form)
+    form.item.data = ToDoItem['item']
+    form.Target_Date = ToDoItem['TargetDate']
+    form.ToDoType.data = ToDoItem['type']
+    form.description.data = ToDoItem['description']
+
+    if request.method == 'POST' and form.validate():
+        item = request.form['item']
+        TargetDate = request.form['Target_Date']
+        ToDoType = request.form['ToDoType']
+        description = request.form['description']
+
+        # sql cursor
+        cur = mysql.connection.cursor()
+        app.logger.info(item)
+        cur.execute('update ToDoItems set item = %s, target_date = %s, type = %s, description = %s where id = %s', (item, TargetDate, ToDoType, description, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('Item updated', 'success')
+        return redirect(url_for('ToDoBoard'))
+    return render_template('edit_todo.html', form=form)
+
+# Delete accomplishment
+@app.route('/delete_todo/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_todo(id):
+    # sql cursor
+    cur = mysql.connection.cursor()
+    cur.execute("delete from ToDoItems where id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+
+    flash('Item deleted', 'Success')
+
+    return redirect(url_for('ToDoBoard'))
+
+@app.route('/ToDoBoard')
+@is_logged_in
+def ToDoBoard():
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from ToDoItems where author = %s", [session['username']])
+    ToDoItems = cur.fetchall()
+
+    if result > 0:
+        return render_template('ToDoBoard.html', ToDoItems=ToDoItems)
+    else:
+        msg = 'No item found'
+        return render_template('ToDoBoard.html', msg=msg)
+    cur.close()
 
 if __name__=='__main__':
     app.secret_key='secret123'
