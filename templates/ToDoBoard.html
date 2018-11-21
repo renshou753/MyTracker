@@ -81,6 +81,12 @@
 		  <td>{{ToDoItem.target_date}}</td>
 		  <td>{{ToDoItem.item}}</td>
 		  <td>{{ToDoItem.type}}</td>
+		  <td>
+		     <form action="{{url_for('archive_todo', id=ToDoItem.id)}}" method="POST">
+			     <input type="hidden" name="_method" value="DELETE">
+			     <input type="submit" value="Done" class="btn">
+		     </form>
+	          </td>
 		  <td><a href="edit_todo/{{ToDoItem.id}}" class="btn btn-default pull-right">Edit</a></td>
 		  <td>
 		     <form action="{{url_for('delete_todo', id=ToDoItem.id)}}" method="POST">

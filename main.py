@@ -265,27 +265,27 @@ def edit_todo(id):
     # get form
     form = ToDoItemForm(request.form)
     form.item.data = ToDoItem['item']
-    form.Target_Date = ToDoItem['TargetDate']
-    form.ToDoType.data = ToDoItem['type']
+    form.Target_Date.data = ToDoItem['target_date']
+    form.Type.data = ToDoItem['type']
     form.description.data = ToDoItem['description']
 
     if request.method == 'POST' and form.validate():
         item = request.form['item']
         TargetDate = request.form['Target_Date']
-        ToDoType = request.form['ToDoType']
+        Type = request.form['Type']
         description = request.form['description']
 
         # sql cursor
         cur = mysql.connection.cursor()
         app.logger.info(item)
-        cur.execute('update ToDoItems set item = %s, target_date = %s, type = %s, description = %s where id = %s', (item, TargetDate, ToDoType, description, id))
+        cur.execute('update ToDoItems set item = %s, target_date = %s, type = %s, description = %s where id = %s', (item, TargetDate, Type, description, id))
         mysql.connection.commit()
         cur.close()
         flash('Item updated', 'success')
         return redirect(url_for('ToDoBoard'))
     return render_template('edit_todo.html', form=form)
 
-# Delete accomplishment
+# Delete to do item
 @app.route('/delete_todo/<string:id>', methods=['POST'])
 @is_logged_in
 def delete_todo(id):
@@ -297,6 +297,30 @@ def delete_todo(id):
 
     flash('Item deleted', 'Success')
 
+    return redirect(url_for('ToDoBoard'))
+
+# archive to do item
+@app.route('/archive_todo/<string:id>', methods=['POST'])
+@is_logged_in
+def archive_todo(id):
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from ToDoItems where id = %s", [id])
+    ToDoItem = cur.fetchone()
+    cur.close()
+
+    Item = ToDoItem['item']
+    Type = ToDoItem['type']
+    Description = ToDoItem['description']
+
+    # sql cursor
+    cur = mysql.connection.cursor()
+    cur.execute('insert into AccItems(item, type, description, author) values(%s, %s, %s, %s)', (Item, Type, Description, session['username']))
+    cur.execute("delete from ToDoItems where id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+
+    flash('Item archived', 'Success')
     return redirect(url_for('ToDoBoard'))
 
 @app.route('/ToDoBoard')
