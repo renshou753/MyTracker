@@ -38,7 +38,7 @@ def is_logged_in(f):
 def accomplishment():
     # sql cursor
     cur = mysql.connection.cursor()
-    result = cur.execute("select * from AccItems where author = %s", [session['username']])
+    result = cur.execute("select * from AccItems where author = %s order by added_date desc", [session['username']])
     AccItems = cur.fetchall()
 
     if result > 0:
@@ -53,7 +53,7 @@ def accomplishment():
 def ViewByType():
     # sql cursor
     cur = mysql.connection.cursor()
-    result = cur.execute("select * from AccItems where author = %s", [session['username']])
+    result = cur.execute("select * from AccItems where author = %s order by added_date desc", [session['username']])
     AccItems = cur.fetchall()
 
     if result > 0:
@@ -328,7 +328,7 @@ def archive_todo(id):
 def ToDoBoard():
     # sql cursor
     cur = mysql.connection.cursor()
-    result = cur.execute("select * from ToDoItems where author = %s", [session['username']])
+    result = cur.execute("select * from ToDoItems where author = %s order by target_date asc", [session['username']])
     ToDoItems = cur.fetchall()
 
     if result > 0:
@@ -337,6 +337,15 @@ def ToDoBoard():
         msg = 'No item found'
         return render_template('ToDoBoard.html', msg=msg)
     cur.close()
+
+@app.route('/gantt')
+@is_logged_in
+def gantt():
+    # sql cursor
+    cur = mysql.connection.cursor()
+    result = cur.execute("select id, item, type, description, added_date, target_date, author, datediff(target_date, added_date) as total_days, datediff(target_date, now()) as left_days from ToDoItems where author = %s order by target_date asc", [session['username']])
+    ToDoItems = cur.fetchall()
+    return render_template('gantt.html', ToDoItems = ToDoItems)
 
 if __name__=='__main__':
     app.secret_key='secret123'

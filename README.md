@@ -6,3 +6,9 @@ Simple event tracker application with authentication and CRUD functionality usin
 ```
 python main.py
 ```
+
+### Web Gui
+![web](gui.png)
+
+### Gantt
+![gantt](gantt.png)
