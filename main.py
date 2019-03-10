@@ -1,8 +1,12 @@
+#!/home/tony/miniconda3/bin/python
+
 from flask import Flask, url_for, flash, redirect, session, request, logging, render_template
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, DateField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
+import pickle
+import os.path
 
 app = Flask(__name__)
 
@@ -347,8 +351,33 @@ def gantt():
     ToDoItems = cur.fetchall()
     return render_template('gantt.html', ToDoItems = ToDoItems)
 
+
+class WhiteBoardForm(Form):
+    content = TextAreaField('Content', [validators.Length(max=3000)])
+
+@app.route('/WhiteBoard', methods = ['GET','POST'])
+@is_logged_in
+def WhiteBoard():
+
+    if os.path.isfile("content.pickle"):
+        pickle_in = open("content.pickle", "rb")
+        content = pickle.load(pickle_in)
+        pickle_in.close()
+
+        form = WhiteBoardForm(request.form)
+        form.content.data = content
+
+    if request.method == 'POST' and form.validate():
+        # get form
+        form = WhiteBoardForm(request.form)
+        content = form.content.data
+        pickle_out = open("content.pickle", "wb")
+        pickle.dump(content, pickle_out)
+        pickle_out.close()
+        flash('Saved', 'success')
+        return redirect(url_for('WhiteBoard'))
+    return render_template('WhiteBoard.html', form=form)
+
 if __name__=='__main__':
     app.secret_key='secret123'
     app.run(debug=True)
-
-
