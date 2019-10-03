@@ -12,8 +12,8 @@ app = Flask(__name__)
 
 # config sql
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_USER'] = 'tracker'
+app.config['MYSQL_PASSWORD'] = 'thisismytracker'
 app.config['MYSQL_DB'] = 'tracker'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
@@ -380,4 +380,4 @@ def WhiteBoard():
 
 if __name__=='__main__':
     app.secret_key='secret123'
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5050, debug=True)

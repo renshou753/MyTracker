@@ -1,4 +1,7 @@
 show databases;
+create USER 'tracker'@'localhost' IDENTIFIED BY 'thisismytracker';
+grant all on *.* to 'tracker'@'localhost';
+flush privileges;
 create database tracker;
 use tracker;
 CREATE TABLE users(id INT(11) AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100), username VARCHAR(30), password VARCHAR(100), register_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, unique key unique_email(email), unique key unique_username(username));

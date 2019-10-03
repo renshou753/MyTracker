@@ -1,12 +1,68 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <div class="jumbotron text-center">
-    <h1>Tracker, Your Productivity Driver</h1>
-    <p class="lead">To track accomplishment & To do list</p>
-    {% if session.logged_in == NULL %}
+
+<main role="main">
+
+  <section class="jumbotron text-center">
+    <div class="container">
+      <h1 class="jumbotron-heading">Tracker</h1>
+      <p class="lead text-muted">Your Productivity Driver</p>
+      {% if session.logged_in == NULL %}
       <a href="/register" class="btn btn-primary btn-lg">Register</a>
       <a href="/login" class="btn btn-success btn-lg">Login</a>
-    {% endif %}
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="album py-5 bg-light">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="/accomplishment" class="btn btn-success btn-lg">Accomplishment</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="/ToDoBoard" class="btn btn-success btn-lg">To do</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="/WhiteBoard" class="btn btn-success btn-lg">WhiteBoard</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
   </div>
+  </div>
+
+</main>
 {% endblock %}
