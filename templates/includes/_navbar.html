@@ -1,29 +1,32 @@
+<header id="header">
+  <div class="container-fluid">
 
-<nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarCollapse">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active ">
-        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item dropup">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true"
-          aria-expanded="false">Menu</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown10">
-          <a class="dropdown-item" href="/accomplishment">Accomplishment</a>
-          <a class="dropdown-item" href="/ToDoBoard">To Do</a>
-          <a class="dropdown-item" href="/WhiteBoard">WhiteBoard</a>
-          {% if session.logged_in %}
-          <a class="dropdown-item" href="/logout">Logout</a>
-          {% else %}
-          <a class="dropdown-item" href="/register">Register</a>
-          <a class="dropdown-item" href="/login">Login</a>
-          {% endif %}
+    <nav class="nav-menu-container navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+
+        <div id="logo" class="pull-left">
+          <h1><a href="/" class="scrollto">Home</a></h1>
+          <!-- Uncomment below if you prefer to use an image logo -->
+          <!-- <a href="#intro"><img src="img/logo.png" alt="" title="" /></a>-->
         </div>
-      </li>
-    </ul>
+
+        <ul class="nav-menu">
+            {% if session.logged_in %}
+            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            {% else %}
+            <li><a class="dropdown-item" href="/register">Register</a></li>
+            <li><a class="dropdown-item" href="/login">Login</a></li>
+            {% endif %}
+
+          </ul>
+
+      </div>
+    </nav>
+
   </div>
-</nav>
+</header><!-- #header -->
+
