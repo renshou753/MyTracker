@@ -26,6 +26,7 @@ def home():
 def about():
     return render_template('about.html')
 
+
 # check if logged in
 def is_logged_in(f):
     @wraps(f)
