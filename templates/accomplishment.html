@@ -2,61 +2,63 @@
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
 
-    <title>Dashboard Template for Bootstrap</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-    <!-- Bootstrap core CSS -->
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+  <title>Dashboard Template for Bootstrap</title>
 
-    <!-- Custom styles for this template -->
-    <link href="dashboard.css" rel="stylesheet">
+  <!-- Bootstrap core CSS -->
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
-  </head>
+  <!-- Custom styles for this template -->
+  <link href="dashboard.css" rel="stylesheet">
+
+</head>
 
 
 {% block body %}
-  <body>
 
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
+<body>
 
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-              <span>Welcome</span>
-              <a class="d-flex align-items-center text-muted" href="#">
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Welcome</span>
+            <a class="d-flex align-items-center text-muted" href="#">
+            </a>
+          </h6>
+          <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/accomplishment">
+                Dashboard <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/viewByType">
+                AggregateByCategory
               </a>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="/accomplishment">
-		Dashboard <span class="sr-only">(current)</span></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/viewByType">
-		AggregateByCategory
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/viewByMonth">
-		AggregateByMonth
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/viewByMonth">
+                AggregateByMonth
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <div class="btn-toolbar mb-2 mb-md-0">
-	     
-	      <a class='btn btn-success' href="/add_acc_item"> Add item</a>
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div class="btn-toolbar mb-2 mb-md-0">
+
+            <a class='btn btn-success' href="/add_acc_item"> Add item</a>
 
           </div>
 
@@ -68,75 +70,75 @@
                   <th>Date</th>
                   <th>Event</th>
                   <th>Category
-		  
-                  <select id='filterType' style='display:inline-block' onchange='filterType()'>
-                      <option disabled selected>Select</option>
-	              <option value='all'>All</option>
-	               {% for AccItem in AccItems %}
-	              <option value={{AccItem.type}}>{{AccItem.type}}</option>
-                       {% endfor %}
-                  </select>
 
-		  </th>
+                    <select id='filterType' style='display:inline-block' onchange='filterType()'>
+                      <option disabled selected>Select</option>
+                      <option value='all'>All</option>
+                      {% for AccItem in AccItems %}
+                      <option value={{AccItem.type}}>{{AccItem.type}}</option>
+                      {% endfor %}
+                    </select>
+
+                  </th>
                 </tr>
               </thead>
               <tbody>
-		{% for AccItem in AccItems %}
+                {% for AccItem in AccItems %}
                 <tr class='content'>
-		  <td>{{AccItem.added_date}}</td>
-		  <td>{{AccItem.item}}</td>
-		  <td>{{AccItem.type}}</td>
-		  <td><a href="edit_acc/{{AccItem.id}}" class="btn btn-default pull-right">Edit</a></td>
-		  <td>
-		     <form action="{{url_for('delete_acc', id=AccItem.id)}}" method="POST">
-			     <input type="hidden" name="_method" value="DELETE">
-			     <input type="submit" value="Delete" class="btn btn-danger">
-		     </form>
+                  <td>{{AccItem.added_date}}</td>
+                  <td>{{AccItem.item}}</td>
+                  <td>{{AccItem.type}}</td>
+                  <td><a href="edit_acc/{{AccItem.id}}" class="btn btn-default pull-right">Edit</a></td>
+                  <td>
+                    <form action="{{url_for('delete_acc', id=AccItem.id)}}" method="POST">
+                      <input type="hidden" name="_method" value="DELETE">
+                      <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
 
-	          </td>
+                  </td>
                 </tr>
-		{% endfor %}
+                {% endfor %}
               </tbody>
             </table>
           </div>
-        </main>
-      </div>
+      </main>
     </div>
+  </div>
 
-    <!-- Bootstrap core JavaScript
+  <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="../static/js/bootstrap.bundle.js"></script>
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="../static/js/bootstrap.bundle.js"></script>
 
 
-    <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
-    <script>
-      feather.replace()
-    </script>
+  <!-- Icons -->
+  <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+  <script>
+    feather.replace()
+  </script>
 
-    <script>
-    function filterType()
-    	{  
-    		var rex = new RegExp($('#filterType').val());
-    		if(rex =="/all/"){clearFilter()}else{
-    			$('.content').hide();
-    			$('.content').filter(function() {
-    			return rex.test($(this).text());
-    			}).show();
-    	}
-    	}
-    	
-    function clearFilter()
-    	{
-    		$('.filterType').val('');
-    		$('.content').show();
-    	}
-    </script>
+  <script>
+    function filterType() {
+      var rex = new RegExp($('#filterType').val());
+      if (rex == "/all/") { clearFilter() } else {
+        $('.content').hide();
+        $('.content').filter(function () {
+          return rex.test($(this).text());
+        }).show();
+      }
+    }
 
-  </body>
+    function clearFilter() {
+      $('.filterType').val('');
+      $('.content').show();
+    }
+  </script>
+
+</body>
 
 {% endblock %}
-</html>
 
+</html>

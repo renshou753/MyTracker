@@ -465,6 +465,20 @@ def search_user_activity(username):
     finally:
         cur.close()
 
+@app.route('/activities')
+@is_logged_in
+def activities():
+    ## sql cursor
+    cur = mysql.connection.cursor()
+    try:
+        result = cur.execute("select * from activities where author = %s order by start_time desc", [session['username']])
+        items = cur.fetchall()
+        return render_template("activities.html", items=items)
+    except:
+        return jsonify({'message': "You don't have activities uploaded to server"})
+    finally:
+        cur.close()
+
 if __name__=='__main__':
     app.secret_key='aceapisawesome'
     app.run(host='0.0.0.0', port=5050, debug=True)
