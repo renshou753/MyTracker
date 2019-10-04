@@ -438,11 +438,9 @@ def token_required(f):
 @token_required
 def upload_activity(username, activity):
     r = request.get_json()
-    print(r)
-    print(activity, r['start_time'], r['end_time'], r['days'], r['minutes'], r['hours'], r['seconds'], username)
 
     ## sql cursor
-    cur = mysql.connect.cursor()
+    cur = mysql.connection.cursor()
     try:
         cur.execute("insert into activities(name, start_time, end_time, days, minutes, hours, seconds, author) values(%s, %s, %s, %s, %s, %s, %s, %s)", (activity, r['start_time'], r['end_time'], r['days'], r['hours'], r['minutes'], r['seconds'], username))
         mysql.connection.commit()
@@ -452,6 +450,20 @@ def upload_activity(username, activity):
     finally:
         cur.close()
 
+# query user activities
+@app.route('/user/activities/<username>', methods=['GET'])
+@token_required
+def search_user_activity(username):
+    ## sql cursor
+    cur = mysql.connection.cursor()
+    try:
+        result = cur.execute("select * from activities where author = %s order by start_time desc", [username])
+        items = cur.fetchall()
+        return jsonify(items)
+    except:
+        return jsonify({'message': 'action failed'})
+    finally:
+        cur.close()
 
 if __name__=='__main__':
     app.secret_key='aceapisawesome'
