@@ -1,6 +1,6 @@
 #!/home/tony/miniconda3/bin/python
 
-from flask import Flask, url_for, flash, redirect, session, request, logging, render_template, make_response
+from flask import Flask, url_for, flash, redirect, session, request, logging, render_template, make_response, jsonify
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, DateField, PasswordField, validators
 from passlib.hash import sha256_crypt
@@ -9,6 +9,7 @@ import pickle
 import os.path
 import jwt 
 import datetime
+import requests
 
 app = Flask(__name__)
 
@@ -394,10 +395,12 @@ def apilogin():
     cur = mysql.connect.cursor()
 
     result = cur.execute("select * from users where username = %s", [auth.username])
-
+    
     if result > 0:
         # get hash password
         data = cur.fetchone()
+        cur.close()
+
         password = data['password']
 
         # compare password
@@ -410,6 +413,45 @@ def apilogin():
 
     else:
         return make_response('Could not verify', 401, {'WWW-Authenticate':'Log in required'})
+
+# Decorator to decode token
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token'] 
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 403
+       
+        try:
+            data = jwt.decode(token, app.secret_key)
+        except:
+            return jsonify({'message': 'Token is invalid'}), 403
+        
+        return f(*args, **kwargs)
+    return decorated
+
+# put user activity to the database
+@app.route('/user/<username>/<activity>', methods=['POST'])
+@token_required
+def upload_activity(username, activity):
+    r = request.get_json()
+    print(r)
+    print(activity, r['start_time'], r['end_time'], r['days'], r['minutes'], r['hours'], r['seconds'], username)
+
+    ## sql cursor
+    cur = mysql.connect.cursor()
+    try:
+        cur.execute("insert into activities(name, start_time, end_time, days, minutes, hours, seconds, author) values(%s, %s, %s, %s, %s, %s, %s, %s)", (activity, r['start_time'], r['end_time'], r['days'], r['hours'], r['minutes'], r['seconds'], username))
+        mysql.connection.commit()
+        return jsonify({'message': 'activity uploaded'})
+    except:
+        return jsonify({'message': 'uploading failed'})
+    finally:
+        cur.close()
+
 
 if __name__=='__main__':
     app.secret_key='aceapisawesome'
