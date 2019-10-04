@@ -1,12 +1,14 @@
 #!/home/tony/miniconda3/bin/python
 
-from flask import Flask, url_for, flash, redirect, session, request, logging, render_template
+from flask import Flask, url_for, flash, redirect, session, request, logging, render_template, make_response
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, DateField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
 import pickle
 import os.path
+import jwt 
+import datetime
 
 app = Flask(__name__)
 
@@ -82,6 +84,7 @@ def ViewByMonth():
         msg = 'No item found'
         return render_template('viewByMonth.html', msg=msg)
     cur.close()
+
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -379,6 +382,35 @@ def WhiteBoard():
         return redirect(url_for('WhiteBoard'))
     return render_template('WhiteBoard.html', form=form)
 
+# Create an api log in portal in order to generate and distribute a jwt token
+@app.route('/apilogin')
+def apilogin():
+    auth = request.authorization
+
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate':'Log in required'})
+
+    ## sql cursor
+    cur = mysql.connect.cursor()
+
+    result = cur.execute("select * from users where username = %s", [auth.username])
+
+    if result > 0:
+        # get hash password
+        data = cur.fetchone()
+        password = data['password']
+
+        # compare password
+        if sha256_crypt.verify(auth.password, password):
+            # matched
+            token = jwt.encode({'username':auth.username, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.secret_key)
+            return jsonify({'token': token.decode('utf-8')})
+        else:
+            return make_response('Could not verify', 401, {'WWW-Authenticate':'Log in required'})
+
+    else:
+        return make_response('Could not verify', 401, {'WWW-Authenticate':'Log in required'})
+
 if __name__=='__main__':
-    app.secret_key='secret123'
+    app.secret_key='aceapisawesome'
     app.run(host='0.0.0.0', port=5050, debug=True)
